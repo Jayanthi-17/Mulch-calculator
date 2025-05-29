@@ -1,145 +1,243 @@
 
-    // Apply styles
-    function applyStyles() {
-      // Body styles
-      document.body.style.fontFamily = 'Arial, sans-serif';
-      document.body.style.padding = '20px';
-      document.body.style.margin = '0';
+    // ===== STYLES =====
+    function applyAlmanacStyles() {
+      document.body.style.fontFamily = "'Helvetica Neue', Arial, sans-serif";
+      document.body.style.backgroundColor = "#f9f8f6";
+      document.body.style.color = "#333";
+      document.body.style.margin = "0";
+      document.body.style.padding = "0";
+      document.body.style.lineHeight = "1.6";
 
-      // Container styles
-      const container = document.getElementById('container');
-      container.style.maxWidth = '600px';
-      container.style.margin = 'auto';
+      const container = document.getElementById("almanac-container");
+      container.style.maxWidth = "800px";
+      container.style.margin = "20px auto";
+      container.style.padding = "20px";
+      container.style.backgroundColor = "#fff";
+      container.style.borderRadius = "5px";
+      container.style.boxShadow = "0 2px 5px rgba(0,0,0,0.1)";
 
-      // Form element styles
-      const style = document.createElement('style');
-      style.textContent = `
-        label, select, input, button { 
-          display: block; 
-          width: 100%; 
-          margin-bottom: 10px; 
+      const header = document.getElementById("calculator-header");
+      header.style.borderBottom = "2px solid #e1e1e1";
+      header.style.paddingBottom = "15px";
+      header.style.marginBottom = "20px";
+      header.querySelector("h1").style.color = "#2a5c82";
+      header.querySelector("h1").style.fontSize = "28px";
+      header.querySelector("p").style.color = "#666";
+
+      const formStyles = document.createElement("style");
+      formStyles.textContent = `
+        #calculator-form label {
+          display: block;
+          margin: 15px 0 5px;
+          color: #2a5c82;
+          font-weight: bold;
+        }
+        #calculator-form input, 
+        #calculator-form select {
+          width: 100%;
+          padding: 10px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          font-size: 16px;
+          margin-bottom: 10px;
+        }
+        .button-group {
+          display: flex;
+          gap: 10px;
+          margin-top: 15px;
+        }
+        #calculator-form button {
+          flex: 1;
+          padding: 12px;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 16px;
+        }
+        #calculate-btn {
+          background-color: #4a7b9d;
+          color: white;
+          border: none;
+        }
+        #calculate-btn:hover {
+          background-color: #2a5c82;
+        }
+        #reset-btn {
+          background-color: #f1f1f1;
+          border: 1px solid #ddd;
+        }
+        #reset-btn:hover {
+          background-color: #e1e1e1;
+        }
+        #calculator-results {
+          background-color: #f5f9fc;
+          border-left: 4px solid #4a7b9d;
+          padding: 20px;
+          margin-top: 25px;
+          border-radius: 4px;
+        }
+        .result-item {
+          margin-bottom: 10px;
         }
         @media (max-width: 600px) {
-          label, select, input, button { font-size: 16px; }
+          #almanac-container {
+            padding: 15px;
+          }
+          .button-group {
+            flex-direction: column;
+          }
         }
       `;
-      document.head.appendChild(style);
-
-      // Output styles
-      const result = document.getElementById('result');
-      result.style.marginTop = '20px';
+      document.head.appendChild(formStyles);
     }
 
+    // ===== CALCULATOR LOGIC =====
     function createCalculator() {
-      const form = document.createElement('form');
+      const form = document.createElement("form");
+      form.id = "mulch-calculator";
       form.innerHTML = `
-        <label>Total Area:</label>
-        <input type="number" id="totalArea" placeholder="Leave blank if using dimensions">
+        <label for="totalArea">Total Area:</label>
+        <input type="number" id="totalArea" placeholder="e.g., 100">
         <select id="areaUnit">
-          <option value="sqft">Square Feet (default)</option>
+          <option value="sqft">Square Feet</option>
           <option value="sqyd">Square Yards</option>
           <option value="sqm">Square Meters</option>
           <option value="sqin">Square Inches</option>
           <option value="sqcm">Square Centimeters</option>
         </select>
 
-        <label>OR Dimensions (Length × Width):</label>
-        <input type="number" id="length" placeholder="Length">
-        <input type="number" id="width" placeholder="Width">
+        <label for="length">OR Dimensions:</label>
+        <div style="display: flex; gap: 10px;">
+          <input type="number" id="length" placeholder="Length" style="flex: 1;">
+          <span style="align-self: center;">×</span>
+          <input type="number" id="width" placeholder="Width" style="flex: 1;">
+        </div>
         <select id="dimUnit">
-          <option value="ft">Feet (default)</option>
+          <option value="ft">Feet</option>
           <option value="yd">Yards</option>
           <option value="m">Meters</option>
           <option value="in">Inches</option>
           <option value="cm">Centimeters</option>
         </select>
 
-        <label>Mulch Depth:</label>
-        <input type="number" id="depth" value="3">
+        <label for="depth">Mulch Depth:</label>
+        <input type="number" id="depth" value="3" min="0.1" step="0.1">
         <select id="depthUnit">
-          <option value="in">Inches (default)</option>
+          <option value="in">Inches</option>
           <option value="ft">Feet</option>
           <option value="yd">Yards</option>
           <option value="m">Meters</option>
           <option value="cm">Centimeters</option>
         </select>
 
-        <label>Mulch Type:</label>
+        <label for="mulchType">Mulch Type (optional):</label>
         <select id="mulchType">
-          <option value="wood">Wood (default)</option>
-          <option value="rubber">Rubber</option>
+          <option value="wood">Wood Mulch</option>
+          <option value="rubber">Rubber Mulch</option>
         </select>
 
-        <button type="button" onclick="calculateMulch()">Calculate</button>
-        <button type="reset">Reset</button>
+        <div class="button-group">
+          <button type="button" id="calculate-btn">Calculate</button>
+          <button type="reset" id="reset-btn">Reset</button>
+        </div>
       `;
-      document.getElementById('calculator').appendChild(form);
+      document.getElementById("calculator-form").appendChild(form);
+
+      // Event listeners
+      document.getElementById("calculate-btn").addEventListener("click", calculateMulch);
+      document.getElementById("reset-btn").addEventListener("click", () => {
+        document.getElementById("calculator-results").innerHTML = "";
+      });
     }
 
+    // Unit conversions
     function convertToSqFt(value, unit) {
       const conversions = {
-        sqft: 1, sqyd: 9, sqm: 10.764, sqin: 0.006944, sqcm: 0.001076
+        sqft: 1, 
+        sqyd: 9, 
+        sqm: 10.764, 
+        sqin: 0.006944, 
+        sqcm: 0.001076
       };
       return value * (conversions[unit] || 1);
     }
 
     function convertToFt(value, unit) {
       const conversions = {
-        ft: 1, yd: 3, m: 3.281, in: 1 / 12, cm: 0.03281
+        ft: 1, 
+        yd: 3, 
+        m: 3.281, 
+        in: 0.0833, 
+        cm: 0.0328
       };
       return value * (conversions[unit] || 1);
     }
 
-    function convertDepthToFt(value, unit) {
-      return convertToFt(value, unit);
-    }
-
+    // Main calculation
     function calculateMulch() {
-      let area = parseFloat(document.getElementById('totalArea').value);
-      const areaUnit = document.getElementById('areaUnit').value;
-      const length = parseFloat(document.getElementById('length').value);
-      const width = parseFloat(document.getElementById('width').value);
-      const dimUnit = document.getElementById('dimUnit').value;
-      const depth = parseFloat(document.getElementById('depth').value);
-      const depthUnit = document.getElementById('depthUnit').value;
-      const mulchType = document.getElementById('mulchType').value;
+      const areaInput = document.getElementById("totalArea").value;
+      const areaUnit = document.getElementById("areaUnit").value;
+      const length = document.getElementById("length").value;
+      const width = document.getElementById("width").value;
+      const dimUnit = document.getElementById("dimUnit").value;
+      const depth = document.getElementById("depth").value;
+      const depthUnit = document.getElementById("depthUnit").value;
+      const mulchType = document.getElementById("mulchType").value;
 
-      if (!area && length && width) {
-        const lengthFt = convertToFt(length, dimUnit);
-        const widthFt = convertToFt(width, dimUnit);
-        area = lengthFt * widthFt;
-      } else {
-        area = convertToSqFt(area, areaUnit);
+      // Validate input
+      if ((!areaInput && (!length || !width))) {
+        alert("Please enter either Total Area OR Length × Width.");
+        return;
+      }
+      if (!depth || depth <= 0) {
+        alert("Please enter a valid depth greater than 0.");
+        return;
       }
 
-      const depthFt = convertDepthToFt(depth, depthUnit);
-      const volumeCuFt = area * depthFt;
+      // Calculate area in square feet
+      let areaSqFt;
+      if (length && width) {
+        const lengthFt = convertToFt(parseFloat(length), dimUnit);
+        const widthFt = convertToFt(parseFloat(width), dimUnit);
+        areaSqFt = lengthFt * widthFt;
+      } else {
+        areaSqFt = convertToSqFt(parseFloat(areaInput), areaUnit);
+      }
 
-      const cuYd = volumeCuFt / 27;
-      const cuM = volumeCuFt * 0.0283168;
-      const liters = cuM * 1000;
-      const bags = volumeCuFt / 2;
-      const bulk = cuYd.toFixed(2) + ' cubic yards';
+      // Convert depth to feet
+      const depthFt = convertToFt(parseFloat(depth), depthUnit);
 
-      const result = `
-        <p><strong>Estimated mulch needed:</strong></p>
-        <ul>
-          <li>${volumeCuFt.toFixed(2)} cubic feet</li>
-          <li>${cuYd.toFixed(2)} cubic yards</li>
-          <li>${cuM.toFixed(2)} cubic meters</li>
-          <li>${liters.toFixed(2)} liters</li>
-          <li>${bags.toFixed(1)} bags (2 cu ft)</li>
-          <li>${bulk} of ${mulchType} mulch</li>
-        </ul>
-        <p><strong>Calculation performed:</strong> Volume = Area × Depth = ${area.toFixed(2)} sq ft × ${depthFt.toFixed(2)} ft</p>
-        <p>That would cover around ${(area / 162).toFixed(1)} parking spaces at a depth of ${depth} ${depthUnit}.</p>
+      // Calculate volumes
+      const volumeCuFt = areaSqFt * depthFt;
+      const volumeCuYd = volumeCuFt / 27;
+      const volumeCuM = volumeCuFt * 0.0283168;
+      const volumeLiters = volumeCuM * 1000;
+      const bags = Math.ceil(volumeCuFt / 2);
+
+      // Visual comparison (parking space = 162 sq ft)
+      const parkingSpaces = (areaSqFt / 162).toFixed(1);
+
+      // Display results
+      const results = document.getElementById("calculator-results");
+      results.innerHTML = `
+        <h3 style="color: #2a5c82; margin-top: 0;">Mulch Needed</h3>
+        <div class="result-item"><strong>${volumeCuFt.toFixed(1)} cubic feet</strong></div>
+        <div class="result-item"><strong>${volumeCuYd.toFixed(2)} cubic yards</strong> (bulk delivery)</div>
+        <div class="result-item"><strong>${volumeCuM.toFixed(2)} cubic meters</strong></div>
+        <div class="result-item"><strong>${Math.round(volumeLiters)} liters</strong></div>
+        <div class="result-item"><strong>${bags} bags</strong> (2 cu ft each)</div>
+
+        <h4 style="margin-top: 20px; color: #2a5c82;">Calculation</h4>
+        <p>Volume = Area × Depth = ${areaSqFt.toFixed(2)} sq ft × ${depthFt.toFixed(3)} ft</p>
+
+        <h4 style="margin-top: 15px; color: #2a5c82;">Coverage</h4>
+        <p>That would cover around <strong>${parkingSpaces} parking spaces</strong> (162 sq ft each) at a depth of ${depth} ${depthUnit}.</p>
+
+        <p style="color: #666; font-size: 14px;">Mulch type: ${mulchType.replace(/^\w/, c => c.toUpperCase())}</p>
       `;
-
-      document.getElementById('result').innerHTML = result;
     }
 
+    // Initialize
     window.onload = function() {
-      applyStyles();
+      applyAlmanacStyles();
       createCalculator();
     };
-  
