@@ -59,14 +59,14 @@
           border: none;
         }
         #calculate-btn:hover {
-          background-color: #2a5c82;
+          background-color:rgb(9, 10, 10);
         }
         #reset-btn {
           background-color: #f1f1f1;
           border: 1px solid #ddd;
         }
         #reset-btn:hover {
-          background-color: #e1e1e1;
+          background-color:rgb(157, 139, 139);
         }
         #calculator-results {
           background-color: #f5f9fc;
