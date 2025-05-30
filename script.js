@@ -13,11 +13,11 @@
       container.style.margin = "20px auto";
       container.style.padding = "20px";
       container.style.backgroundColor = "#fff";
-      container.style.borderRadius = "5px";
+      container.style.borderRadius = "40px";
       container.style.boxShadow = "0 2px 5px rgba(0,0,0,0.1)";
 
       const header = document.getElementById("calculator-header");
-      header.style.borderBottom = "2px solid #e1e1e1";
+      header.style.borderBottom = "2px solid rgb(45, 131, 184)";
       header.style.paddingBottom = "15px";
       header.style.marginBottom = "20px";
       header.querySelector("h1").style.color = "#2a5c82";
@@ -37,7 +37,7 @@
           width: 100%;
           padding: 10px;
           border: 1px solid #ddd;
-          border-radius: 4px;
+          border-radius: 7px;
           font-size: 16px;
           margin-bottom: 10px;
         }
@@ -62,7 +62,7 @@
           background-color:rgb(9, 10, 10);
         }
         #reset-btn {
-          background-color: #f1f1f1;
+          background-color:rgb(216, 201, 201);
           border: 1px solid #ddd;
         }
         #reset-btn:hover {
@@ -108,7 +108,7 @@
         <label for="length">OR Dimensions:</label>
         <div style="display: flex; gap: 10px;">
           <input type="number" id="length" placeholder="Length" style="flex: 1;">
-          <span style="align-self: center;">×</span>
+          <span style="align-self: center;">x</span>
           <input type="number" id="width" placeholder="Width" style="flex: 1;">
         </div>
         <select id="dimUnit">
