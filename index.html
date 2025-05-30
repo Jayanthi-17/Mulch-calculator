@@ -12,6 +12,7 @@
       <p>Estimate how much mulch you need for your garden beds.</p>
     </div>
     <div id="calculator-form"></div>
+    <div id="error-message" style="color: #ad2a24; margin-top: 10px; display: none;"></div>
     <div id="calculator-results"></div>
   </div>
 <script>
@@ -34,10 +35,10 @@
       container.style.boxShadow = "0 2px 5px rgba(0,0,0,0.1)";
 
       const header = document.getElementById("calculator-header");
-      header.style.borderBottom = "2px solid rgb(45, 131, 184)";
+      header.style.borderBottom = "2px solid #ad2a24";
       header.style.paddingBottom = "15px";
       header.style.marginBottom = "20px";
-      header.querySelector("h1").style.color = "#2a5c82";
+      header.querySelector("h1").style.color = "#ad2a24";
       header.querySelector("h1").style.fontSize = "28px";
       header.querySelector("p").style.color = "#666";
 
@@ -46,7 +47,7 @@
         #calculator-form label {
           display: block;
           margin: 15px 0 5px;
-          color: #2a5c82;
+          color: #ad2a24;
           font-weight: bold;
         }
         #calculator-form input, 
@@ -71,12 +72,12 @@
           font-size: 16px;
         }
         #calculate-btn {
-          background-color: #4a7b9d;
+          background-color: #ad2a24;
           color: white;
           border: none;
         }
         #calculate-btn:hover {
-          background-color:rgb(9, 10, 10);
+          background-color: #8a221e;
         }
         #reset-btn {
           background-color:rgb(216, 201, 201);
@@ -86,8 +87,8 @@
           background-color:rgb(157, 139, 139);
         }
         #calculator-results {
-          background-color: #f5f9fc;
-          border-left: 4px solid #4a7b9d;
+          background-color: #fcf5f5;
+          border-left: 4px solid #ad2a24;
           padding: 20px;
           margin-top: 25px;
           border-radius: 4px;
@@ -112,17 +113,7 @@
       const form = document.createElement("form");
       form.id = "mulch-calculator";
       form.innerHTML = `
-        <label for="totalArea">Total Area:</label>
-        <input type="number" id="totalArea" placeholder="e.g., 100">
-        <select id="areaUnit">
-          <option value="sqft">Square Feet</option>
-          <option value="sqyd">Square Yards</option>
-          <option value="sqm">Square Meters</option>
-          <option value="sqin">Square Inches</option>
-          <option value="sqcm">Square Centimeters</option>
-        </select>
-
-        <label for="length">OR Dimensions:</label>
+        <label for="length">Dimensions:</label>
         <div style="display: flex; gap: 10px;">
           <input type="number" id="length" placeholder="Length" style="flex: 1;">
           <span style="align-self: center;">x</span>
@@ -136,6 +127,16 @@
           <option value="cm">Centimeters</option>
         </select>
 
+        <label for="totalArea">OR Total Area:</label>
+        <input type="number" id="totalArea" placeholder="e.g., 100">
+        <select id="areaUnit">
+          <option value="sqft">Square Feets</option>
+          <option value="sqyd">Square Yards</option>
+          <option value="sqm">Square Meters</option>
+          <option value="sqin">Square Inches</option>
+          <option value="sqcm">Square Centimeters</option>
+        </select>
+
         <label for="depth">Mulch Depth:</label>
         <input type="number" id="depth" value="3" min="0.1" step="0.1">
         <select id="depthUnit">
@@ -146,10 +147,11 @@
           <option value="cm">Centimeters</option>
         </select>
 
-        <label for="mulchType">Mulch Type (optional):</label>
+        <label for="mulchType">Mulch Type:</label>
         <select id="mulchType">
-          <option value="wood">Wood Mulch</option>
-          <option value="rubber">Rubber Mulch</option>
+          <option value="wood">Wood chips (shredded bark)</option>
+          <option value="pine">Pine and cypress needles</option>
+          <option value="straw">Straw (weed-free) and hay</option>
         </select>
 
         <div class="button-group">
@@ -163,6 +165,7 @@
       document.getElementById("calculate-btn").addEventListener("click", calculateMulch);
       document.getElementById("reset-btn").addEventListener("click", () => {
         document.getElementById("calculator-results").innerHTML = "";
+        document.getElementById("error-message").style.display = "none";
       });
     }
 
@@ -191,6 +194,9 @@
 
     // Main calculation
     function calculateMulch() {
+      const errorElement = document.getElementById("error-message");
+      errorElement.style.display = "none";
+      
       const areaInput = document.getElementById("totalArea").value;
       const areaUnit = document.getElementById("areaUnit").value;
       const length = document.getElementById("length").value;
@@ -202,11 +208,13 @@
 
       // Validate input
       if ((!areaInput && (!length || !width))) {
-        alert("Please enter either Total Area OR Length × Width.");
+        errorElement.textContent = "Please enter either Length × Width (OR) Total Area ";
+        errorElement.style.display = "block";
         return;
       }
       if (!depth || depth <= 0) {
-        alert("Please enter a valid depth greater than 0.");
+        errorElement.textContent = "Please enter a valid depth greater than 0.";
+        errorElement.style.display = "block";
         return;
       }
 
@@ -228,28 +236,47 @@
       const volumeCuYd = volumeCuFt / 27;
       const volumeCuM = volumeCuFt * 0.0283168;
       const volumeLiters = volumeCuM * 1000;
-      const bags = Math.ceil(volumeCuFt / 2);
+      
+      // Determine bag size based on mulch type
+      let bagSize, mulchTypeName, bagDescription;
+      switch(mulchType) {
+        case "pine":
+          bagSize = 2;
+          mulchTypeName = "Pine needle mulch";
+          bagDescription = "standard bag: 2 cubic ft";
+          break;
+        case "straw":
+          bagSize = 2.4;
+          mulchTypeName = "Chopped Straw";
+          bagDescription = "standard bag: 2.4 cubic ft";
+          break;
+        default: // wood
+          bagSize = 2;
+          mulchTypeName = "Wood chips";
+          bagDescription = "standard bag: 2 cubic ft";
+      }
+      const bags = Math.ceil(volumeCuFt / bagSize);
 
-      // Visual comparison (parking space = 162 sq ft)
-      const parkingSpaces = (areaSqFt / 162).toFixed(1);
+      // Visual comparison (raised garden bed = 32 sq ft)
+      const gardenBeds = (areaSqFt / 32).toFixed(1);
 
       // Display results
       const results = document.getElementById("calculator-results");
       results.innerHTML = `
-        <h3 style="color: #2a5c82; margin-top: 0;">Mulch Needed</h3>
+        <h3 style="color: #ad2a24; margin-top: 0;">Mulch Needed</h3>
         <div class="result-item"><strong>${volumeCuFt.toFixed(1)} cubic feet</strong></div>
         <div class="result-item"><strong>${volumeCuYd.toFixed(2)} cubic yards</strong> (bulk delivery)</div>
         <div class="result-item"><strong>${volumeCuM.toFixed(2)} cubic meters</strong></div>
         <div class="result-item"><strong>${Math.round(volumeLiters)} liters</strong></div>
-        <div class="result-item"><strong>${bags} bags</strong> (2 cu ft each)</div>
+        <div class="result-item"><strong>${bags} bags</strong> (${bagDescription})</div>
 
-        <h4 style="margin-top: 20px; color: #2a5c82;">Calculation</h4>
+        <h4 style="margin-top: 20px; color: #ad2a24;">Calculation</h4>
         <p>Volume = Area × Depth = ${areaSqFt.toFixed(2)} sq ft × ${depthFt.toFixed(3)} ft</p>
 
-        <h4 style="margin-top: 15px; color: #2a5c82;">Coverage</h4>
-        <p>That would cover around <strong>${parkingSpaces} parking spaces</strong> (162 sq ft each) at a depth of ${depth} ${depthUnit}.</p>
+        <h4 style="margin-top: 15px; color: #ad2a24;">Coverage</h4>
+        <p>That would cover around <strong>${gardenBeds} raised garden beds</strong> (32 sq ft each) at a depth of ${depth} ${depthUnit}.</p>
 
-        <p style="color: #666; font-size: 14px;">Mulch type: ${mulchType.replace(/^\w/, c => c.toUpperCase())}</p>
+        <p style="color: #666; font-size: 14px;">Mulch type: ${mulchTypeName}</p>
       `;
     }
 
