@@ -121,37 +121,30 @@
         </div>
         <select id="dimUnit">
           <option value="ft">Feet</option>
-          <option value="yd">Yards</option>
+          <option value="yd">Yard</option>
           <option value="m">Meters</option>
-          <option value="in">Inches</option>
-          <option value="cm">Centimeters</option>
         </select>
 
         <label for="totalArea">OR Total Area:</label>
         <input type="number" id="totalArea" placeholder="e.g., 100">
         <select id="areaUnit">
-          <option value="sqft">Square Feets</option>
-          <option value="sqyd">Square Yards</option>
+          <option value="sqft">Square Feet</option>
+          <option value="sqyd">Square Yard</option>
           <option value="sqm">Square Meters</option>
-          <option value="sqin">Square Inches</option>
-          <option value="sqcm">Square Centimeters</option>
         </select>
 
         <label for="depth">Mulch Depth:</label>
         <input type="number" id="depth" value="3" min="0.1" step="0.1">
         <select id="depthUnit">
           <option value="in">Inches</option>
-          <option value="ft">Feet</option>
-          <option value="yd">Yards</option>
-          <option value="m">Meters</option>
           <option value="cm">Centimeters</option>
         </select>
 
         <label for="mulchType">Mulch Type:</label>
         <select id="mulchType">
-          <option value="wood">Wood chips (shredded bark)</option>
-          <option value="pine">Pine and cypress needles</option>
-          <option value="straw">Straw (weed-free) and hay</option>
+          <option value="shredded">Shredded Bark</option>
+          <option value="nuggets">Bark Nuggets</option>
+          <option value="pine">Pine Straw/Pine Needles</option>
         </select>
 
         <div class="button-group">
@@ -174,9 +167,7 @@
       const conversions = {
         sqft: 1, 
         sqyd: 9, 
-        sqm: 10.764, 
-        sqin: 0.006944, 
-        sqcm: 0.001076
+        sqm: 10.764
       };
       return value * (conversions[unit] || 1);
     }
@@ -185,7 +176,13 @@
       const conversions = {
         ft: 1, 
         yd: 3, 
-        m: 3.281, 
+        m: 3.281
+      };
+      return value * (conversions[unit] || 1);
+    }
+
+    function convertDepthToFt(value, unit) {
+      const conversions = {
         in: 0.0833, 
         cm: 0.0328
       };
@@ -208,7 +205,7 @@
 
       // Validate input
       if ((!areaInput && (!length || !width))) {
-        errorElement.textContent = "Please enter either Length × Width (OR) Total Area ";
+        errorElement.textContent = "Please enter either Length × Width (OR) Total Area";
         errorElement.style.display = "block";
         return;
       }
@@ -229,7 +226,7 @@
       }
 
       // Convert depth to feet
-      const depthFt = convertToFt(parseFloat(depth), depthUnit);
+      const depthFt = convertDepthToFt(parseFloat(depth), depthUnit);
 
       // Calculate volumes
       const volumeCuFt = areaSqFt * depthFt;
@@ -237,47 +234,41 @@
       const volumeCuM = volumeCuFt * 0.0283168;
       const volumeLiters = volumeCuM * 1000;
       
-      // Determine bag size based on mulch type
-      let bagSize, mulchTypeName, bagDescription;
-      switch(mulchType) {
-        case "pine":
-          bagSize = 2;
-          mulchTypeName = "Pine needle mulch";
-          bagDescription = "standard bag: 2 cubic ft";
-          break;
-        case "straw":
-          bagSize = 2.4;
-          mulchTypeName = "Chopped Straw";
-          bagDescription = "standard bag: 2.4 cubic ft";
-          break;
-        default: // wood
-          bagSize = 2;
-          mulchTypeName = "Wood chips";
-          bagDescription = "standard bag: 2 cubic ft";
-      }
-      const bags = Math.ceil(volumeCuFt / bagSize);
-
-      // Visual comparison (raised garden bed = 32 sq ft)
-      const gardenBeds = (areaSqFt / 32).toFixed(1);
-
       // Display results
       const results = document.getElementById("calculator-results");
-      results.innerHTML = `
-        <h3 style="color: #ad2a24; margin-top: 0;">Mulch Needed</h3>
-        <div class="result-item"><strong>${volumeCuFt.toFixed(1)} cubic feet</strong></div>
-        <div class="result-item"><strong>${volumeCuYd.toFixed(2)} cubic yards</strong> (bulk delivery)</div>
-        <div class="result-item"><strong>${volumeCuM.toFixed(2)} cubic meters</strong></div>
-        <div class="result-item"><strong>${Math.round(volumeLiters)} liters</strong></div>
-        <div class="result-item"><strong>${bags} bags</strong> (${bagDescription})</div>
+      
+      if (mulchType === "pine") {
+        // Pine Straw/Pine Needles - show only volume
+        results.innerHTML = `
+          <h3 style="color: #ad2a24; margin-top: 0;">Mulch Needed</h3>
+          <div class="result-item"><strong>${volumeCuFt.toFixed(1)} cubic feet</strong></div>
+          <div class="result-item"><strong>${volumeCuYd.toFixed(2)} cubic yards</strong></div>
+          <div class="result-item"><strong>${volumeCuM.toFixed(2)} cubic meters</strong></div>
+          <div class="result-item"><strong>${Math.round(volumeLiters)} liters</strong></div>
 
-        <h4 style="margin-top: 20px; color: #ad2a24;">Calculation</h4>
-        <p>Volume = Area × Depth = ${areaSqFt.toFixed(2)} sq ft × ${depthFt.toFixed(3)} ft</p>
+          <h4 style="margin-top: 15px; color: #ad2a24;">Coverage</h4>
+          <p>This would cover around <strong>${areaSqFt.toFixed(1)} sq ft</strong> at a depth of <strong>${depth} ${depthUnit}</strong>.</p>
+        `;
+      } else {
+        // Shredded Bark or Bark Nuggets - show volume and bags
+        const bagSize = 2; // Standard bag size for bark mulches
+        const bags = Math.ceil(volumeCuFt / bagSize);
+        const mulchTypeName = mulchType === "shredded" ? "Shredded Bark" : "Bark Nuggets";
+        
+        results.innerHTML = `
+          <h3 style="color: #ad2a24; margin-top: 0;">Mulch Needed</h3>
+          <div class="result-item"><strong>${volumeCuFt.toFixed(1)} cubic feet</strong></div>
+          <div class="result-item"><strong>${volumeCuYd.toFixed(2)} cubic yards</strong> (bulk delivery)</div>
+          <div class="result-item"><strong>${volumeCuM.toFixed(2)} cubic meters</strong></div>
+          <div class="result-item"><strong>${Math.round(volumeLiters)} liters</strong></div>
+          <div class="result-item"><strong>${bags} bags</strong> (standard 2 cubic ft bags)</div>
 
-        <h4 style="margin-top: 15px; color: #ad2a24;">Coverage</h4>
-        <p>That would cover around <strong>${gardenBeds} raised garden beds</strong> (32 sq ft each) at a depth of ${depth} ${depthUnit}.</p>
+          <h4 style="margin-top: 15px; color: #ad2a24;">Coverage</h4>
+          <p>This would cover around <strong>${areaSqFt.toFixed(1)} sq ft</strong> at a depth of <strong>${depth} ${depthUnit}</strong>.</p>
 
-        <p style="color: #666; font-size: 14px;">Mulch type: ${mulchTypeName}</p>
-      `;
+          <p style="color: #666; font-size: 14px;">Mulch type: ${mulchTypeName}</p>
+        `;
+      }
     }
 
     // Initialize
