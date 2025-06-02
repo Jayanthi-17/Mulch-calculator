@@ -121,7 +121,7 @@
         </div>
         <select id="dimUnit">
           <option value="ft">Feet</option>
-          <option value="yd">Yard</option>
+          <option value="yd">Yards</option>
           <option value="m">Meters</option>
         </select>
 
@@ -129,7 +129,7 @@
         <input type="number" id="totalArea" placeholder="e.g., 100">
         <select id="areaUnit">
           <option value="sqft">Square Feet</option>
-          <option value="sqyd">Square Yard</option>
+          <option value="sqyd">Square Yards</option>
           <option value="sqm">Square Meters</option>
         </select>
 
@@ -245,9 +245,6 @@
           <div class="result-item"><strong>${volumeCuYd.toFixed(2)} cubic yards</strong></div>
           <div class="result-item"><strong>${volumeCuM.toFixed(2)} cubic meters</strong></div>
           <div class="result-item"><strong>${Math.round(volumeLiters)} liters</strong></div>
-
-          <h4 style="margin-top: 15px; color: #ad2a24;">Coverage</h4>
-          <p>This would cover around <strong>${areaSqFt.toFixed(1)} sq ft</strong> at a depth of <strong>${depth} ${depthUnit}</strong>.</p>
         `;
       } else {
         // Shredded Bark or Bark Nuggets - show volume and bags
@@ -262,11 +259,6 @@
           <div class="result-item"><strong>${volumeCuM.toFixed(2)} cubic meters</strong></div>
           <div class="result-item"><strong>${Math.round(volumeLiters)} liters</strong></div>
           <div class="result-item"><strong>${bags} bags</strong> (standard 2 cubic ft bags)</div>
-
-          <h4 style="margin-top: 15px; color: #ad2a24;">Coverage</h4>
-          <p>This would cover around <strong>${areaSqFt.toFixed(1)} sq ft</strong> at a depth of <strong>${depth} ${depthUnit}</strong>.</p>
-
-          <p style="color: #666; font-size: 14px;">Mulch type: ${mulchTypeName}</p>
         `;
       }
     }
