@@ -49,18 +49,30 @@
           color: #af6b35;
           font-weight: bold;
         }
+        .input-group {
+          display: flex;
+          gap: 10px;
+          max-width: 400px;
+          margin-bottom: 10px;
+        }
+        .input-group input, 
+        .input-group select {
+          flex: 1;
+        }
         #calculator-form input, 
         #calculator-form select {
-          width: 90%;  /* Reduced from 100% */
+          width: 100%;
           padding: 10px;
           border: 1px solid #ddd;
           border-radius: 7px;
           font-size: 16px;
           margin-bottom: 10px;
-          max-width: 400px;  /* Added max-width */
+          max-width: 400px;
+          box-sizing: border-box;
           transition: all 0.3s ease;
         }
-        #calculator-form input:focus {
+        #calculator-form input:focus,
+        #calculator-form select:focus {
           outline: 2px solid #ad2a24;
           transform: scale(1.02);
         }
@@ -128,14 +140,14 @@
           }
           .button-group {
             flex-direction: column;
-            width: 90%;
+            width: 100%;
           }
           #calculator-form input, 
           #calculator-form select {
             width: 100%;
           }
           #calculator-results {
-            width: 90%;
+            width: 100%;
           }
         }
       `;
@@ -148,38 +160,46 @@
       form.id = "mulch-calculator";
       form.innerHTML = `
         <label for="length">Dimensions:</label>
-        <div style="display: flex; gap: 10px; max-width: 400px;">
-          <input type="number" id="length" placeholder="Length" style="flex: 1;">
-          <span style="align-self: center;">x</span>
-          <input type="number" id="width" placeholder="Width" style="flex: 1;">
+        <div class="input-group">
+          <input type="number" id="length" placeholder="Length">
+          <span style="align-self: center; padding: 0 5px;">x</span>
+          <input type="number" id="width" placeholder="Width">
         </div>
-        <select id="dimUnit">
-          <option value="ft">Feet</option>
-          <option value="yd">Yards</option>
-          <option value="m">Meters</option>
-        </select>
+        <div class="input-group">
+          <select id="dimUnit">
+            <option value="ft">Feet</option>
+            <option value="yd">Yards</option>
+            <option value="m">Meters</option>
+          </select>
+        </div>
 
         <label for="totalArea">OR Total Area:</label>
-        <input type="number" id="totalArea" placeholder="e.g., 100">
-        <select id="areaUnit">
-          <option value="sqft">Square Feet</option>
-          <option value="sqyd">Square Yards</option>
-          <option value="sqm">Square Meters</option>
-        </select>
+        <div class="input-group">
+          <input type="number" id="totalArea" placeholder="e.g., 100">
+          <select id="areaUnit">
+            <option value="sqft">Square Feet</option>
+            <option value="sqyd">Square Yards</option>
+            <option value="sqm">Square Meters</option>
+          </select>
+        </div>
 
         <label for="depth">Mulch Depth:</label>
-        <input type="number" id="depth" value="3" min="0.1" step="0.1">
-        <select id="depthUnit">
-          <option value="in">Inches</option>
-          <option value="cm">Centimeters</option>
-        </select>
+        <div class="input-group">
+          <input type="number" id="depth" value="3" min="0.1" step="0.1">
+          <select id="depthUnit">
+            <option value="in">Inches</option>
+            <option value="cm">Centimeters</option>
+          </select>
+        </div>
 
         <label for="mulchType">Mulch Type:</label>
-        <select id="mulchType">
-          <option value="shredded">Shredded Bark</option>
-          <option value="nuggets">Bark Nuggets</option>
-          <option value="pine">Pine Straw/Pine Needles</option>
-        </select>
+        <div class="input-group">
+          <select id="mulchType">
+            <option value="shredded">Shredded Bark</option>
+            <option value="nuggets">Bark Nuggets</option>
+            <option value="pine">Pine Straw/Pine Needles</option>
+          </select>
+        </div>
 
         <div class="button-group">
           <button type="button" id="calculate-btn">Calculate</button>
@@ -191,12 +211,11 @@
       // Event listeners
       document.getElementById("calculate-btn").addEventListener("click", calculateMulch);
       document.getElementById("reset-btn").addEventListener("click", () => {
-  const results = document.getElementById("calculator-results");
-  results.innerHTML = "";
-  results.style.display = "none";  // 🔹 Hide results when reset is clicked
-  document.getElementById("error-message").style.display = "none";
-});
-
+        const results = document.getElementById("calculator-results");
+        results.innerHTML = "";
+        results.style.display = "none";  // 🔹 Hide results when reset is clicked
+        document.getElementById("error-message").style.display = "none";
+      });
     }
 
     // Unit conversions
@@ -297,9 +316,8 @@
           <div class="result-item"><strong>${Math.round(volumeLiters)} liters</strong></div>
           <div class="result-item"><strong>${bags} bags</strong> (standard 2 cubic ft bags)</div>
         `;
-        results.style.display = "block";
-
       }
+      results.style.display = "block";
     }
 
     // Initialize
